@@ -1,0 +1,19 @@
+.subbody__search {
+  padding: 40px 20px;
+  padding-bottom: 0;
+  display: flex;
+  padding-left: 60px;
+}
+.subbody__search > img {
+  padding-right: 100px;
+}
+
+.subbody__search > h2 {
+  margin-left: 5px;
+  margin-bottom: 20px;
+}
+.hr__ {
+  margin-top: 38px;
+  border: 1px solid #563c3c;
+  width: 100%;
+}
