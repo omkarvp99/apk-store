@@ -13,7 +13,6 @@ const app = express();
 // Middleware
 app.use(bodyParser.json());
 app.use(methodOverride("_method"));
-app.set("view engine", "ejs");
 
 // Mongo URI
 const mongodbOptions = {
@@ -33,6 +32,7 @@ let gfs;
 conn.once("open", () => {
   // init stream
   gfs = new mongoose.mongo.GridFSBucket(conn.db, { bucketName: "apk" });
+  console.log("connection successful");
 });
 
 // create storage engine
@@ -56,22 +56,27 @@ const storage = new GridFsStorage({
 });
 const upload = multer({ storage }); // middleware to coonect form and data instance
 
-// @route GET /
-// @desc Loads form
-app.get("/", (req, res) => {
-  res.render("index");
+// CORS (Cross-Origin Resource Sharing) headers to support Cross-site HTTP requests
+app.all("*", (req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Content-Type,Content-Length, Authorization, Accept,X-Requested-With"
+  );
+  res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
+  next();
 });
 
 // @route POST / upload -> upload multiple files
-// @desc uplaod files to db
 // const no_of_files = 10; // will upload defined number of files
-app.post("/upload", upload.single("file"), (req, res) => {
+app.post("/", upload.array("appImg"), (req, res, err) => {
   // res.json({ file: req.file });
-  res.redirect("/");
+  // res.redirect("/");
+  if (err) throw err;
+  res.status(201).send(req.file);
 });
 
 // @route GET /files
-// @desc  Display all files in JSON
 app.get("/files", (req, res) => {
   gfs.find().toArray((err, files) => {
     // Check if files
@@ -82,12 +87,13 @@ app.get("/files", (req, res) => {
     }
 
     // Files exist
-    return res.json(files);
+    // const getfile = res.json(files.map((res) => res.filename));
+    const getfile = res.json(files);
+
+    return getfile;
   });
 });
 
-// @route GET /files/:filename
-// @desc  Display single file object
 app.get("/files/:filename", (req, res) => {
   gfs.find({ filename: req.params.filename }).toArray((err, file) => {
     // Check if file
@@ -97,12 +103,11 @@ app.get("/files/:filename", (req, res) => {
       });
     }
     // File exists
-    return res.json(file);
+    const go = gfs.openDownloadStreamByName(req.params.filename).pipe(res);
+    return go;
   });
 });
 
-// @route GET /image/:filename
-// @desc Display Image
 app.get("/image/:filename", (req, res) => {
   gfs.find({ filename: req.params.filename }).toArray((err, file) => {
     // Check if file
@@ -117,38 +122,8 @@ app.get("/image/:filename", (req, res) => {
   });
 });
 
-// @route GET /
-// @desc Loads form
-app.get("/", (req, res) => {
-  gfs.files.find().toArray((err, files) => {
-    // Check if files
-    if (!files || files.length === 0) {
-      res.render("index", { files: false });
-    } else {
-      files.map((file) => {
-        if (
-          file.contentType === "image/jpeg" ||
-          file.contentType === "image/png"
-        ) {
-          file.isImage = true;
-        } else {
-          file.isImage = false;
-        }
-      });
-      res.render("index", { files: files });
-    }
-  });
-});
-
-// files/del/:id
-// Delete chunks from the db
-app.post("/files/del/:id", (req, res) => {
-  gfs.delete(new mongoose.Types.ObjectId(req.params.id), (err, data) => {
-    if (err) return res.status(404).json({ err: err.message });
-    res.redirect("/");
-  });
-});
+const cors = require("cors");
 
 const port = 5000;
-
+app.use(cors(port));
 app.listen(port, () => console.log(`Server starts on port ${port}`));

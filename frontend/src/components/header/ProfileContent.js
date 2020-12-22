@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./ProfileContent.css";
-import AddApps from "./AddApps";
+import AddApp from "./AddApp";
 
 // To update profile
 import { useAuth } from "./../../contexts/AuthContext";
@@ -42,7 +42,13 @@ export default function ProfileContent() {
             Update Profile
           </Link>
           <div className="w-100 text-center mt-2">
-            <Button variant="link" onClick={handleLogout}>
+            <Button
+              onClick={handleLogout}
+              style={{
+                borderRadius: "30px",
+                backgroundColor: "rgb(139, 106, 168)",
+              }}
+            >
               Log Out
             </Button>
           </div>
@@ -50,7 +56,7 @@ export default function ProfileContent() {
       </div>
       <hr className="hr__" />
       <div className="subbody__search">
-        <AddApps />
+        <AddApp />
       </div>
     </>
   );

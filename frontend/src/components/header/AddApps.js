@@ -1,24 +1,37 @@
 import React, { Component } from "react";
 import { FaPlus } from "react-icons/fa";
 
+import { useAuth } from "./../../contexts/AuthContext";
+const { currentUser } = useAuth();
+const email = useAuth.currentUser;
+
+// const Uid = useAuth.currentUser.uid;
+// const email = useAuth.currentUser.email;
+
 class AddApps extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
+      appUid: "",
       appName: "",
+      appEmail: "",
       appdesc: "",
       appSize: "",
-      appImg: {},
-      aptApk: {},
+      appImg: null,
+      aptApk: null,
     };
+    this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
-    this.handleAdd = this.handleAdd.bind(this);
   }
 
-  handleAdd(e) {
+  handleSubmit(e) {
     e.preventDefault();
+    const formData = new FormData();
+    formData.append("");
     let tempApt = {
+      appUid: this.state.appUid,
       appName: this.state.appName,
+      //appEmail: this.state.appEmail,
       appdesc: this.state.appdesc,
       appSize: this.state.appSize,
       aapImg: this.state.aapImg,
@@ -28,7 +41,9 @@ class AddApps extends Component {
     this.props.addApp(tempApt);
 
     this.setState({
+      appUid: "",
       appName: "",
+      //appEmail: "",
       appdesc: "",
       appSize: "",
       appImg: {},
@@ -40,10 +55,15 @@ class AddApps extends Component {
     const target = e.target;
     const value = target.value;
     const file = target.file;
-    const name = target.name;
 
     this.setState({
-      [name]: value,
+      appUid: currentUser.uid,
+      appName: value,
+      //appEmail: useAuth.currentUser.email,
+      appdesc: value,
+      appSize: value,
+      appImg: file,
+      aptApk: file,
     });
   }
 
@@ -55,7 +75,19 @@ class AddApps extends Component {
         </div>
 
         <div>
-          <form id="aptForm" noValidate onSubmit={this.handleAdd}>
+          <form onSubmit={this.handleSubmit}>
+            <div>
+              <label htmlFor="appUid">UID</label>
+              <div>
+                <input
+                  type="text"
+                  name="appUid"
+                  placeholder="User ID"
+                  onChange={this.handleChange}
+                />
+              </div>
+            </div>
+
             <div>
               <label htmlFor="appName">App Name</label>
               <div>
@@ -63,7 +95,6 @@ class AddApps extends Component {
                   type="text"
                   name="appName"
                   placeholder="App name"
-                  value={this.state.appName}
                   onChange={this.handleChange}
                 />
               </div>
@@ -88,7 +119,6 @@ class AddApps extends Component {
                 <input
                   type="text"
                   name="appSize"
-                  id="appSize"
                   placeholder="App Size"
                   value={this.state.appSize}
                   onChange={this.handleChange}
@@ -102,7 +132,6 @@ class AddApps extends Component {
                 <input
                   type="file"
                   name="appApk"
-                  id="appApk"
                   placeholder="Upload Apk file"
                   file={this.state.appApk}
                   onChange={this.handleChange}
@@ -116,7 +145,6 @@ class AddApps extends Component {
                 <input
                   type="file"
                   name="appImg"
-                  id="appImg"
                   placeholder="Upload Apk Img"
                   file={this.state.appImg}
                   onChange={this.handleChange}
